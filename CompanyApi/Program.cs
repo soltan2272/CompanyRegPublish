@@ -1,4 +1,10 @@
 
+using System;
+using CompanyDataLayer;
+using Microsoft.EntityFrameworkCore;
+using CompanyRepositoryLayer;
+using CompanyServiceLayer.Configrations;
+
 namespace CompanyApi
 {
     public class Program
@@ -13,6 +19,11 @@ namespace CompanyApi
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddRepositoryLayer(builder.Configuration);
+            
+            builder.Services.AddServiceLayer(builder.Configuration);
+
 
             var app = builder.Build();
 
