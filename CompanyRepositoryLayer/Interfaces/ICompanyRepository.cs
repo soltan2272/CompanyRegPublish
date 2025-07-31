@@ -9,7 +9,7 @@ namespace CompanyRepositoryLayer.Interfaces
 {
     public interface ICompanyRepository :IGenericRepository<Company>
     {
-        Task<bool> IfEmailExistsAsync(string email);
+        Task<bool> EmailExistsAsync(string email);
 
     }
 }

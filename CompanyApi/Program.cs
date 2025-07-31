@@ -23,6 +23,7 @@ namespace CompanyApi
             builder.Services.AddRepositoryLayer(builder.Configuration);
             
             builder.Services.AddServiceLayer(builder.Configuration);
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
             var app = builder.Build();

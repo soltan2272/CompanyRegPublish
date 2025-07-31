@@ -21,7 +21,7 @@ namespace CompanyRepositoryLayer.Repositories
 
 
 
-        public async Task<bool> IfEmailExistsAsync(string email)
+        public async Task<bool> EmailExistsAsync(string email)
         {
             Company c =await context.Companies
                 .FirstOrDefaultAsync(e => e.Email.ToLower() == email.ToLower());
