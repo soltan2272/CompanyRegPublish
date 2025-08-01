@@ -5,6 +5,7 @@ using CompanyServiceLayer.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using AutoMapper;
 
 
 namespace CompanyServiceLayer.Configrations
@@ -20,9 +21,10 @@ namespace CompanyServiceLayer.Configrations
 
             // Register Caching
             services.AddMemoryCache();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
-    
+
 
             return services;
         }

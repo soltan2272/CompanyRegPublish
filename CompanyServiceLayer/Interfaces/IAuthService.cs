@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CompanyApi.Dtos;
+using CompanyServiceLayer.Dtos;
 
 namespace CompanyServiceLayer.Interfaces
 {
     public interface IAuthService
     {
-        void RegisterCompany(CompanyRegisterDTO registerDTO);
+        Task RegisterCompany(CompanyRegisterDTO registerDTO);
+        bool VerifyOtp(VerifyOtpDto verifyOtp);
 
     }
 }

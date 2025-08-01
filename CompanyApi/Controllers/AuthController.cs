@@ -1,4 +1,5 @@
 ﻿using CompanyApi.Dtos;
+using CompanyServiceLayer.Dtos;
 using CompanyServiceLayer.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,34 @@ namespace CompanyApi.Controllers
                 {
                     authService.RegisterCompany(registerDTO);
                     return Ok(new { message = "Company registered successfully." });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+                }
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public IActionResult VerifyOtp([FromBody] VerifyOtpDto verifyOtp)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    bool isVerified = authService.VerifyOtp(verifyOtp);
+                    if (isVerified)
+                    {
+                        return Ok(new { message = "OTP verified successfully." });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Invalid OTP." });
+                    }
                 }
                 catch (Exception ex)
                 {
