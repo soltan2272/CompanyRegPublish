@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace CompanyServiceLayer.Configrations
@@ -16,6 +17,7 @@ namespace CompanyServiceLayer.Configrations
         {
             services.AddScoped<IAuthService, AuthService>();
 
+            // Register Email Service
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
             services.AddScoped<IEmailService, EmailService>();
 
@@ -23,6 +25,8 @@ namespace CompanyServiceLayer.Configrations
             services.AddMemoryCache();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            // Register password hasher
+            services.AddScoped<IPasswordHasher<Company>, PasswordHasher<Company>>();
 
 
 

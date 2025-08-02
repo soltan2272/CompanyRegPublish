@@ -10,6 +10,7 @@ using CompanyDataLayer.Models;
 using CompanyRepositoryLayer.Interfaces;
 using CompanyServiceLayer.Dtos;
 using CompanyServiceLayer.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -23,14 +24,21 @@ namespace CompanyServiceLayer.Repositories
         private readonly IMemoryCache cache;
         private readonly IEmailService emailService;
         private readonly AppDbContext context;
+        private readonly IPasswordHasher<Company> passwordHasher;
 
-        public AuthService(ICompanyRepository companyRepository,IMapper mapper,IMemoryCache cache,IEmailService emailService,AppDbContext context)
+        public AuthService(ICompanyRepository companyRepository,
+            IMapper mapper,
+            IMemoryCache cache,
+            IEmailService emailService,
+            AppDbContext context,
+            IPasswordHasher<Company> passwordHasher)
         {
             this.companyRepository = companyRepository;
             this.mapper = mapper;
             this.cache = cache;
             this.emailService = emailService;
             this.context = context;
+            this.passwordHasher = passwordHasher;
         }
         public async Task RegisterCompany(CompanyRegisterDTO registerDTO)
         {
@@ -43,12 +51,21 @@ namespace CompanyServiceLayer.Repositories
             else
             {
                 var company = mapper.Map<Company>(registerDTO);
-                company.CreatedAt = DateTime.Now;
+                company.CreatedAt = DateTime.UtcNow;
                 company.Id = Guid.NewGuid();
                 company.IsEmailVerified = false;
-              await  companyRepository.AddAsync(company);
-               await companyRepository.SaveChangesAsync();
+                try
+                {
+                    await companyRepository.AddAsync(company);
+                    await companyRepository.SaveChangesAsync();
 
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+             
                 var otp = new Random().Next(100000, 999999).ToString();
                 cache.Set(registerDTO.Email, otp, TimeSpan.FromMinutes(5));
 
@@ -63,10 +80,23 @@ namespace CompanyServiceLayer.Repositories
             }
         }
 
+        public Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto)
+        {
+            var company = context.Companies.FirstOrDefault(c => c.Email == setPasswordDto.Email);
+            if (company is null || !company.IsEmailVerified)
+                return Task.FromResult(false);
+           
+            var passwordHased = passwordHasher.HashPassword(company, setPasswordDto.Password);
+            company.PasswordHash = passwordHased; 
+            context.SaveChanges();
+            return Task.FromResult(true);
+        }
+      
+
         public bool VerifyOtp(VerifyOtpDto dto)
         {
             if (!cache.TryGetValue(dto.Email, out string? cachedOtp))
-                return false;
+                return  false;
 
             if (cachedOtp != dto.Otp)
                 return false;
@@ -81,6 +111,23 @@ namespace CompanyServiceLayer.Repositories
 
             return true;
         }
+
+        public async Task<string?> LoginAsync(LoginDto dto)
+        {
+            var company = await context.Companies.FirstOrDefaultAsync(c => c.Email == dto.Email);
+
+            if (company is null || !company.IsEmailVerified)
+                return null;
+
+            var result = passwordHasher.VerifyHashedPassword(company, company.PasswordHash!, dto.Password);
+
+            if (result == PasswordVerificationResult.Failed)
+                return null;
+
+            
+            return $"Hello {company.EnglishName}";
+        }
+
 
     }
 }
