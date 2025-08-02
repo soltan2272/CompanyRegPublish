@@ -12,7 +12,27 @@ namespace CompanyApi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    policy =>
+                    {
+                        if (builder.Environment.IsDevelopment())
+                        {
+                            // Allow all in development for easier testing
+                            policy.AllowAnyOrigin()
+                                  .AllowAnyHeader()
+                                  .AllowAnyMethod();
+                        }
+                        else
+                        {
+                            // Production settings
+                            policy.WithOrigins("https://yourproductiondomain.com")
+                                  .AllowAnyHeader()
+                                  .AllowAnyMethod();
+                        }
+                    });
+            });
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -27,7 +47,7 @@ namespace CompanyApi
 
 
             var app = builder.Build();
-
+            app.UseCors();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
