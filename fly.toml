@@ -1,9 +1,23 @@
-app = "company-reg"  # ← Changed to valid name
-primary_region = "cdg"  # Paris region
+# fly.toml app configuration file generated for company-reg on 2025-08-03T14:17:00Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-# Remove ALL [build] section if present
-# Fly.io will auto-detect Dockerfile
+app = 'company-reg'
+primary_region = 'cdg'
+
+[build]
 
 [http_service]
   internal_port = 8080
   force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 1024
