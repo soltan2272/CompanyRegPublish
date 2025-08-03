@@ -1,11 +1,12 @@
-app = "CompanyRegisterPortal"
+app = "compnayregestrationportal"  # Lowercase, hyphens only
 
 [build]
-  build_command = "dotnet publish CompanyApi -c Release -o ./publish"
+  builder = "paketobuildpacks/builder:dotnet-core"
+  buildpacks = ["gcr.io/paketo-buildpacks/dotnet-core"]
 
 [env]
   ASPNETCORE_ENVIRONMENT = "Production"
-  PORT = "8080"
+  PORT = "8080"  # .NET's default internal port
 
 [http_service]
   internal_port = 8080
