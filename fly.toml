@@ -1,13 +1,17 @@
 app = "compnayregestrationportal"  # Lowercase, hyphens only
 
-[build]
-  builder = "paketobuildpacks/builder:dotnet-core"
-  buildpacks = ["gcr.io/paketo-buildpacks/dotnet-core"]
+primary_region = "ord" # Chicago region - choose closest to you
 
-[env]
-  ASPNETCORE_ENVIRONMENT = "Production"
-  PORT = "8080"  # .NET's default internal port
+[build]
+  dockerfile = "Dockerfile"
 
 [http_service]
   internal_port = 8080
   force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
