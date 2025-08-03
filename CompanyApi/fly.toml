@@ -1,9 +1,7 @@
-# fly.toml
-app = "your-app-name"  # Replace with your desired name (lowercase, hyphens)
+app = "CompanyRegisterPortal"
 
 [build]
-  builder = "paketobuildpacks/builder:dotnet-core"
-  buildpacks = ["gcr.io/paketo-buildpacks/dotnet-core"]
+  build_command = "dotnet publish CompanyApi -c Release -o ./publish"
 
 [env]
   ASPNETCORE_ENVIRONMENT = "Production"
