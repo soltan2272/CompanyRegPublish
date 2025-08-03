@@ -69,8 +69,8 @@ namespace CompanyServiceLayer.Repositories
                 var otp = new Random().Next(100000, 999999).ToString();
                 cache.Set(registerDTO.Email, otp, TimeSpan.FromMinutes(5));
 
-                //  Send OTP via email
-                emailService.SendEmailAsync(
+               
+                await emailService.SendEmailAsync(
                     registerDTO.Email,
                     "Verify your email",
                     $"Your OTP is: {otp}"
@@ -82,13 +82,14 @@ namespace CompanyServiceLayer.Repositories
 
         public Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto)
         {
-            var company = context.Companies.FirstOrDefault(c => c.Email == setPasswordDto.Email);
+            var company = companyRepository.GetQueryable()
+                .FirstOrDefault(c => c.Email == setPasswordDto.Email);
             if (company is null || !company.IsEmailVerified)
                 return Task.FromResult(false);
            
             var passwordHased = passwordHasher.HashPassword(company, setPasswordDto.Password);
-            company.PasswordHash = passwordHased; 
-            context.SaveChanges();
+            company.PasswordHash = passwordHased;
+            companyRepository.SaveChangesAsync();
             return Task.FromResult(true);
         }
       
@@ -101,20 +102,22 @@ namespace CompanyServiceLayer.Repositories
             if (cachedOtp != dto.Otp)
                 return false;
 
-            var company = context.Companies.FirstOrDefault(c => c.Email == dto.Email);
+            var company = companyRepository.GetQueryable().
+                FirstOrDefault(c => c.Email == dto.Email);
             if (company is null)
                 return false;
 
             company.IsEmailVerified = true;
             company.VerifiedAt = DateTime.UtcNow;
-            context.SaveChanges();
+            companyRepository.SaveChangesAsync();
 
             return true;
         }
 
         public async Task<string?> LoginAsync(LoginDto dto)
         {
-            var company = await context.Companies.FirstOrDefaultAsync(c => c.Email == dto.Email);
+            var company = await companyRepository.GetQueryable().
+                FirstOrDefaultAsync(c => c.Email == dto.Email);
 
             if (company is null || !company.IsEmailVerified)
                 return null;

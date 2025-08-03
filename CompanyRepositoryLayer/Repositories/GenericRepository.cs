@@ -48,5 +48,10 @@ namespace CompanyRepositoryLayer.Repositories
         {
              _dbSet.Update(entity);
         }
+
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
     }
 }

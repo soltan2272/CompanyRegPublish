@@ -14,5 +14,7 @@ namespace CompanyRepositoryLayer.Interfaces
         public void Update(T entity);
         public void Delete(T entity);
         public Task<bool> SaveChangesAsync();
+
+        public IQueryable<T> GetQueryable();
     }
 }
