@@ -1,0 +1,16 @@
+# fly.toml
+app = "CompanyRegisteration"  # Change to unique name (letters+dashes only)
+
+[build]
+  build_command = "dotnet publish -c Release -o ./publish"
+
+[http_service]
+  internal_port = 8080  # .NET default
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1  # Free tier limit
+  memory_mb = 256  # Minimum for free tier
