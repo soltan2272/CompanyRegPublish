@@ -35,6 +35,9 @@ namespace CompanyApi
             });
             // Add services to the container.
 
+            builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -49,11 +52,14 @@ namespace CompanyApi
             var app = builder.Build();
             app.UseCors();
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                db.Database.Migrate();
             }
+            app.UseSwagger();
+             app.UseSwaggerUI();
+           
 
             app.UseAuthorization();
 
