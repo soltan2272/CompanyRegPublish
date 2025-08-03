@@ -3,4 +3,4 @@ primary_region = "cdg"  # Paris
 
 [http_service]
   internal_port = 8080
-  force_https = trues
+  force_https = true
