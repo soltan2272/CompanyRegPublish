@@ -1,8 +1,8 @@
-app = "CompanyRegPortal"  # Lowercase, hyphens only
-primary_region = "ord"  # Change to your region
+app = "company-reg"  # ← Changed to valid name
+primary_region = "cdg"  # Paris region
 
-[build]
-  dockerfile = "Dockerfile"
+# Remove ALL [build] section if present
+# Fly.io will auto-detect Dockerfile
 
 [http_service]
   internal_port = 8080
