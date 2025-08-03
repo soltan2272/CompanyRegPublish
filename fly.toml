@@ -1,6 +1,5 @@
-app = "compnayregestrationportal"  # Lowercase, hyphens only
-
-primary_region = "ord" # Chicago region - choose closest to you
+app = "CompanyRegPortal"  # Lowercase, hyphens only
+primary_region = "ord"  # Change to your region
 
 [build]
   dockerfile = "Dockerfile"
@@ -8,10 +7,3 @@ primary_region = "ord" # Chicago region - choose closest to you
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory_mb = 512
