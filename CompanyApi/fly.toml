@@ -2,7 +2,8 @@
 app = "CompanyRegisteration"  # Change to unique name (letters+dashes only)
 
 [build]
-  build_command = "dotnet publish -c Release -o ./publish"
+  builder = "nixpacks"
+  build_command = "curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 8.0.100 && dotnet restore && dotnet publish -c Release -o ./publish"
 
 [http_service]
   internal_port = 8080  # .NET default
