@@ -19,26 +19,27 @@ namespace CompanyApi.Controllers
 
 
         [HttpPost("register")]
-        public IActionResult RegisterCompany([FromForm] CompanyRegisterDTO registerDTO)
+        public async Task<IActionResult> RegisterCompany([FromForm] CompanyRegisterDTO registerDTO)
         {
-           if(ModelState.IsValid)
-            {
-                try
-                {
-                    authService.RegisterCompany(registerDTO);
-                    return Ok(new { message = "Company registered successfully." });
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
-                }
-            }
-            else
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-        }
 
+            try
+            {
+                await authService.RegisterCompany(registerDTO);
+                return Ok(new { message = "Company registered successfully. Please check your email for verification OTP." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while registering the company." });
+            }
+        }
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] VerifyOtpDto verifyOtp)
         {

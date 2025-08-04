@@ -40,46 +40,38 @@ namespace CompanyServiceLayer.Repositories
             this.context = context;
             this.passwordHasher = passwordHasher;
         }
+
         public async Task RegisterCompany(CompanyRegisterDTO registerDTO)
         {
-            Task<bool> ifExist = companyRepository.EmailExistsAsync(registerDTO.Email);
-
-            if (ifExist.Result)
+            if (await companyRepository.EmailExistsAsync(registerDTO.Email))
             {
-                throw new Exception("Email already exists");
+                throw new ArgumentException("Email already exists");
             }
-            else
+
+            var company = mapper.Map<Company>(registerDTO);
+            company.CreatedAt = DateTime.UtcNow;
+            company.Id = Guid.NewGuid();
+            company.IsEmailVerified = false;
+
+            try
             {
-                var company = mapper.Map<Company>(registerDTO);
-                company.CreatedAt = DateTime.UtcNow;
-                company.Id = Guid.NewGuid();
-                company.IsEmailVerified = false;
-                try
-                {
-                    await companyRepository.AddAsync(company);
-                    await companyRepository.SaveChangesAsync();
+                await companyRepository.AddAsync(company);
+                await companyRepository.SaveChangesAsync();
 
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-             
                 var otp = new Random().Next(100000, 999999).ToString();
                 cache.Set(registerDTO.Email, otp, TimeSpan.FromMinutes(5));
 
-               
                 await emailService.SendEmailAsync(
                     registerDTO.Email,
                     "Verify your email",
                     $"Your OTP is: {otp}"
                 );
-                
-                
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to register company. Please try again later.");
             }
         }
-
         public Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto)
         {
             var company = companyRepository.GetQueryable()
