@@ -44,14 +44,19 @@ namespace CompanyServiceLayer.Repositories
         public async Task RegisterCompany(CompanyRegisterDTO registerDTO)
         {
             if (await companyRepository.EmailExistsAsync(registerDTO.Email))
-            {
                 throw new ArgumentException("Email already exists");
-            }
 
             var company = mapper.Map<Company>(registerDTO);
             company.CreatedAt = DateTime.UtcNow;
             company.Id = Guid.NewGuid();
             company.IsEmailVerified = false;
+
+            if (registerDTO.LogoPath != null && registerDTO.LogoPath.Length > 0)
+            {
+                using var memoryStream = new MemoryStream();
+                await registerDTO.LogoPath.CopyToAsync(memoryStream);
+                company.LogoBytes = memoryStream.ToArray();
+            }
 
             try
             {
@@ -67,7 +72,7 @@ namespace CompanyServiceLayer.Repositories
                     $"Your OTP is: {otp}"
                 );
             }
-            catch (Exception ex)
+            catch
             {
                 throw new Exception("Failed to register company. Please try again later.");
             }
@@ -121,9 +126,10 @@ namespace CompanyServiceLayer.Repositories
 
             var loginResult = new LoginResult
             {
-              
+
                 EnglishName = company.EnglishName,
-                LogoPath =company.LogoPath
+                LogoBase64 = company.LogoBytes != null 
+                ? Convert.ToBase64String(company.LogoBytes) : null
             };
             return loginResult;
         }

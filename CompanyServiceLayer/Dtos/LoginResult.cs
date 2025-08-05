@@ -9,7 +9,7 @@ namespace CompanyServiceLayer.Dtos
     public class LoginResult
     {
         public string? EnglishName { get; set; }
-        public string? LogoPath { get; set; }
+        public string? LogoBase64 { get; set; }
 
     }
 }

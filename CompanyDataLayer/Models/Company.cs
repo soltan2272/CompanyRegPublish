@@ -14,7 +14,8 @@ namespace CompanyDataLayer.Models
         public string Email { get; set; } = null!;
         public string? PhoneNumber { get; set; }
         public string? WebsiteUrl { get; set; }
-        public string? LogoPath { get; set; }
+        public byte[]? LogoBytes { get; set; }
+
         public bool IsEmailVerified { get; set; } = false;
         public string? PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
