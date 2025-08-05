@@ -17,20 +17,10 @@ namespace CompanyApi
                 options.AddDefaultPolicy(
                     policy =>
                     {
-                        if (builder.Environment.IsDevelopment())
-                        {
-                            // Allow all in development for easier testing
+                       
                             policy.AllowAnyOrigin()
                                   .AllowAnyHeader()
                                   .AllowAnyMethod();
-                        }
-                        else
-                        {
-                            // Production settings
-                            policy.WithOrigins("https://yourproductiondomain.com")
-                                  .AllowAnyHeader()
-                                  .AllowAnyMethod();
-                        }
                     });
             });
             // Add services to the container.
