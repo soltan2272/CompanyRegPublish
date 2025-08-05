@@ -13,8 +13,7 @@ namespace CompanyServiceLayer.Interfaces
         Task RegisterCompany(CompanyRegisterDTO registerDTO);
         bool VerifyOtp(VerifyOtpDto verifyOtp);
         Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto);
-        Task<string?> LoginAsync(LoginDto dto); 
-
+        Task<LoginResult> LoginAsync(LoginDto dto);
 
 
     }

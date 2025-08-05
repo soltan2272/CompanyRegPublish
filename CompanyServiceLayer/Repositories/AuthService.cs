@@ -106,7 +106,7 @@ namespace CompanyServiceLayer.Repositories
             return true;
         }
 
-        public async Task<string?> LoginAsync(LoginDto dto)
+        public async Task<LoginResult> LoginAsync(LoginDto dto)
         {
             var company = await companyRepository.GetQueryable().
                 FirstOrDefaultAsync(c => c.Email == dto.Email);
@@ -119,8 +119,13 @@ namespace CompanyServiceLayer.Repositories
             if (result == PasswordVerificationResult.Failed)
                 return null;
 
-            
-            return $"Hello {company.EnglishName}";
+            var loginResult = new LoginResult
+            {
+              
+                EnglishName = company.EnglishName,
+                LogoPath =company.LogoPath
+            };
+            return loginResult;
         }
 
 
