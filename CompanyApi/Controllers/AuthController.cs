@@ -1,7 +1,5 @@
-﻿using CompanyApi.Dtos;
-using CompanyServiceLayer.Dtos;
+﻿using CompanyServiceLayer.Dtos;
 using CompanyServiceLayer.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyApi.Controllers
@@ -10,15 +8,14 @@ namespace CompanyApi.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService authService;
+        private readonly IAuthService _authService;
 
         public AuthController(IAuthService authService)
         {
-            this.authService = authService;
+            _authService = authService;
         }
 
-
-        [HttpPost("register")]
+        [HttpPost("register/company")]
         public async Task<IActionResult> RegisterCompany([FromForm] CompanyRegisterDTO registerDTO)
         {
             if (!ModelState.IsValid)
@@ -28,92 +25,143 @@ namespace CompanyApi.Controllers
 
             try
             {
-                await authService.RegisterCompany(registerDTO);
-                return Ok(new { message = "Company registered successfully. Please check your email for verification OTP." });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                var result = await _authService.RegisterCompanyAsync(registerDTO);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while registering the company." });
-            }
-        }
-        [HttpPost("verify-otp")]
-        public IActionResult VerifyOtp([FromBody] VerifyOtpDto verifyOtp)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    bool isVerified = authService.VerifyOtp(verifyOtp);
-                    if (isVerified)
-                    {
-                        return Ok(new { message = "OTP verified successfully." });
-                    }
-                    else
-                    {
-                        return BadRequest(new { message = "Invalid OTP." });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
-                }
-            }
-            else
-            {
-                return BadRequest(ModelState);
+                return StatusCode(500, new AuthResult 
+                { 
+                    Success = false, 
+                    Message = $"An error occurred while registering the company: {ex.Message}" 
+                });
             }
         }
 
-        [HttpPost("set-password")]
-        public async Task<IActionResult> SetPasswordAsync([FromBody] SetPasswordDto setPasswordDto)
+        [HttpPost("register/employee")]
+        public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterDTO registerDTO)
         {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    bool isSet = await authService.SetPasswordAsync(setPasswordDto);
-                    if (isSet)
-                    {
-                        return Ok(new { message = "Password set successfully." });
-                    }
-                    else
-                    {
-                        return BadRequest(new { message = "Failed to set password." });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
-                }
-            }
-            else
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _authService.RegisterEmployeeAsync(registerDTO);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new AuthResult 
+                { 
+                    Success = false, 
+                    Message = $"An error occurred while registering the employee: {ex.Message}" 
+                });
+            }
+        }
+
+        [HttpPost("generate-otp")]
+        public async Task<IActionResult> GenerateOtp([FromBody] GenerateOtpDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _authService.GenerateOtpAsync(dto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new AuthResult 
+                { 
+                    Success = false, 
+                    Message = $"An error occurred while generating OTP: {ex.Message}" 
+                });
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _authService.VerifyOtpAsync(dto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new AuthResult 
+                { 
+                    Success = false, 
+                    Message = $"Verification failed: {ex.Message}" 
+                });
             }
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            if (ModelState.IsValid)
-            {
-                    var result = await authService.LoginAsync(dto);
-                    if (result != null)
-                    {
-                        return Ok(new { message = result});
-                    }
-                    else
-                    {
-                        return Unauthorized(new { message = "Invalid email or password." });
-                    }
-            }
-            else
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _authService.LoginAsync(dto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return Unauthorized(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new AuthResult 
+                { 
+                    Success = false, 
+                    Message = $"An error occurred during login: {ex.Message}" 
+                });
             }
         }
     }

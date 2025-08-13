@@ -5,19 +5,19 @@
 namespace CompanyDataLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class uploadImage : Migration
+    public partial class UpdateLogoStorage : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "LogoPath",
-                table: "Companies");
-
-            migrationBuilder.AddColumn<byte[]>(
                 name: "LogoBytes",
-                table: "Companies",
-                type: "bytea",
+                table: "AspNetUsers");
+
+            migrationBuilder.AddColumn<string>(
+                name: "LogoPath",
+                table: "AspNetUsers",
+                type: "text",
                 nullable: true);
         }
 
@@ -25,13 +25,13 @@ namespace CompanyDataLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "LogoBytes",
-                table: "Companies");
-
-            migrationBuilder.AddColumn<string>(
                 name: "LogoPath",
-                table: "Companies",
-                type: "text",
+                table: "AspNetUsers");
+
+            migrationBuilder.AddColumn<byte[]>(
+                name: "LogoBytes",
+                table: "AspNetUsers",
+                type: "bytea",
                 nullable: true);
         }
     }

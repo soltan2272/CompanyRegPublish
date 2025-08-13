@@ -2,12 +2,11 @@
 using CompanyDataLayer.Models;
 using CompanyServiceLayer.Interfaces;
 using CompanyServiceLayer.Repositories;
+using CompanyServiceLayer.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using AutoMapper;
-using Microsoft.AspNetCore.Identity;
-
 
 namespace CompanyServiceLayer.Configrations
 {
@@ -16,6 +15,7 @@ namespace CompanyServiceLayer.Configrations
         public static IServiceCollection AddServiceLayer(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IFileService, FileService>();
 
             // Register Email Service
             services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
@@ -25,13 +25,7 @@ namespace CompanyServiceLayer.Configrations
             services.AddMemoryCache();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            // Register password hasher
-            services.AddScoped<IPasswordHasher<Company>, PasswordHasher<Company>>();
-
-
-
             return services;
         }
     }
-
 }

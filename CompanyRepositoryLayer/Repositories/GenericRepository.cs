@@ -9,19 +9,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CompanyRepositoryLayer.Repositories
 {
-    public class GenericRepository<T>: IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly AppDbContext context;
+        private readonly AppDbContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(AppDbContext context) 
+        public GenericRepository(AppDbContext context)
         {
-            this.context = context;
+            _context = context;
             _dbSet = context.Set<T>();
         }
+
         public async Task AddAsync(T entity)
         {
-           await _dbSet.AddAsync(entity);
+            await _dbSet.AddAsync(entity);
         }
 
         public void Delete(T entity)
@@ -39,14 +40,19 @@ namespace CompanyRepositoryLayer.Repositories
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<T?> GetByIdAsync(string id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
         public async Task<bool> SaveChangesAsync()
         {
-            return await context.SaveChangesAsync()>0;
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public void Update(T entity)
         {
-             _dbSet.Update(entity);
+            _dbSet.Update(entity);
         }
 
         public IQueryable<T> GetQueryable()

@@ -7,9 +7,11 @@ using CompanyDataLayer.Models;
 
 namespace CompanyRepositoryLayer.Interfaces
 {
-    public interface ICompanyRepository :IGenericRepository<Company>
+    public interface ICompanyRepository : IGenericRepository<ApplicationUser>
     {
         Task<bool> EmailExistsAsync(string email);
-
+        Task<ApplicationUser?> GetCompanyByEmailAsync(string email);
+        Task<ApplicationUser?> GetCompanyByIdAsync(string id);
+        Task<IEnumerable<ApplicationUser>> GetEmployeesByCompanyIdAsync(string companyId);
     }
 }

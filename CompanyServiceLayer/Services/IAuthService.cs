@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CompanyApi.Dtos;
 using CompanyServiceLayer.Dtos;
 
 namespace CompanyServiceLayer.Interfaces
 {
     public interface IAuthService
     {
-        Task RegisterCompany(CompanyRegisterDTO registerDTO);
-        bool VerifyOtp(VerifyOtpDto verifyOtp);
-        Task<bool> SetPasswordAsync(SetPasswordDto setPasswordDto);
-        Task<LoginResult> LoginAsync(LoginDto dto);
-
-
+        Task<AuthResult> RegisterCompanyAsync(CompanyRegisterDTO registerDTO);
+        Task<AuthResult> RegisterEmployeeAsync(EmployeeRegisterDTO registerDTO);
+        Task<AuthResult> GenerateOtpAsync(GenerateOtpDto dto);
+        Task<AuthResult> VerifyOtpAsync(VerifyOtpDto dto);
+        Task<AuthResult> LoginAsync(LoginDto dto);
     }
 }
