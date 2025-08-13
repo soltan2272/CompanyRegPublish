@@ -21,13 +21,5 @@ namespace CompanyServiceLayer.Dtos
         public string? WebsiteUrl { get; set; }
         
         public IFormFile? LogoPath { get; set; }
-        
-        [Required(ErrorMessage = "Password is required.")]
-        [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
-        public string Password { get; set; } = null!;
-        
-        [Required(ErrorMessage = "Password confirmation is required.")]
-        [Compare("Password", ErrorMessage = "Password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; } = null!;
     }
 }

@@ -67,8 +67,9 @@ namespace CompanyServiceLayer.Repositories
                     companyUser.LogoPath = logoPath;
                 }
 
+                // Create user without password (temporary account)
                 var result = await _userManager.
-                    CreateAsync(companyUser, registerDTO.Password);
+                    CreateAsync(companyUser, Guid.NewGuid().ToString() + "Temp123!");
                 if (!result.Succeeded)
                 {
                     return new AuthResult { Success = false, 
@@ -125,7 +126,8 @@ namespace CompanyServiceLayer.Repositories
                     CreatedAt = DateTime.UtcNow
                 };
 
-                var result = await _userManager.CreateAsync(employeeUser, registerDTO.Password);
+                // Create user without password (temporary account)
+                var result = await _userManager.CreateAsync(employeeUser, Guid.NewGuid().ToString() + "Temp123!");
                 if (!result.Succeeded)
                 {
                     return new AuthResult { Success = false, Message = string.Join(", ", result.Errors.Select(e => e.Description)) };
@@ -210,11 +212,45 @@ namespace CompanyServiceLayer.Repositories
 
                 await _context.SaveChangesAsync();
 
-                return new AuthResult { Success = true, Message = "Email verified successfully" };
+                return new AuthResult { Success = true, Message = "Email verified successfully. Please set your password to complete registration." };
             }
             catch (Exception ex)
             {
                 return new AuthResult { Success = false, Message = $"Verification failed: {ex.Message}" };
+            }
+        }
+
+        public async Task<AuthResult> SetPasswordAfterOtpAsync(SetPasswordAfterOtpDto dto)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(dto.Email);
+                if (user == null)
+                {
+                    return new AuthResult { Success = false, Message = "User not found" };
+                }
+
+                if (!user.IsEmailVerified)
+                {
+                    return new AuthResult { Success = false, Message = "Please verify your email first" };
+                }
+
+                // Generate password reset token
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                
+                // Reset password using the token
+                var result = await _userManager.ResetPasswordAsync(user, token, dto.Password);
+                
+                if (!result.Succeeded)
+                {
+                    return new AuthResult { Success = false, Message = string.Join(", ", result.Errors.Select(e => e.Description)) };
+                }
+
+                return new AuthResult { Success = true, Message = "Password set successfully. You can now login." };
+            }
+            catch (Exception ex)
+            {
+                return new AuthResult { Success = false, Message = $"Failed to set password: {ex.Message}" };
             }
         }
 

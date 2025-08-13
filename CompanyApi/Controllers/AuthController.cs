@@ -135,6 +135,36 @@ namespace CompanyApi.Controllers
             }
         }
 
+        [HttpPost("set-password")]
+        public async Task<IActionResult> SetPasswordAfterOtp([FromBody] SetPasswordAfterOtpDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _authService.SetPasswordAfterOtpAsync(dto);
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new AuthResult 
+                { 
+                    Success = false, 
+                    Message = $"Failed to set password: {ex.Message}" 
+                });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {

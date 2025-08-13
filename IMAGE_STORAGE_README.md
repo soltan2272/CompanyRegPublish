@@ -3,6 +3,8 @@
 ## Overview
 The system has been updated to store company logos in physical storage instead of the database. Images are now stored in the `wwwroot/images` directory and only the file path is stored in the database.
 
+**NEW FLOW**: Users now set their password AFTER verifying OTP instead of during registration.
+
 ## Changes Made
 
 ### 1. Database Schema Update
@@ -23,11 +25,82 @@ The system has been updated to store company logos in physical storage instead o
 - **Image Upload**: Now saves images to physical storage
 - **Logo Path**: Stores relative path in database
 - **Image URL**: Returns full URL for frontend consumption
+- **New Flow**: Password set after OTP verification
 
 ### 4. Enhanced Login Response
 - **Company Information**: Includes company details and logo URL
 - **Employee Information**: Includes employee details and company info
 - **Logo URLs**: Full URLs for easy frontend integration
+
+## New User Registration Flow
+
+### Step 1: User Registration (No Password)
+```
+POST /api/auth/register/company
+Content-Type: multipart/form-data
+
+Fields:
+- ArabicName: string (required)
+- EnglishName: string (required)
+- Email: string (required)
+- PhoneNumber: string (optional)
+- WebsiteUrl: string (optional)
+- LogoPath: file (optional)
+```
+
+**Response**: "Company registered successfully. Please check your email for verification."
+
+### Step 2: OTP Generation
+```
+POST /api/auth/generate-otp
+Content-Type: application/json
+
+{
+  "Email": "company@test.com"
+}
+```
+
+**Response**: "OTP sent successfully"
+
+### Step 3: OTP Verification
+```
+POST /api/auth/verify-otp
+Content-Type: application/json
+
+{
+  "Email": "company@test.com",
+  "Code": "123456"
+}
+```
+
+**Response**: "Email verified successfully. Please set your password to complete registration."
+
+### Step 4: Set Password
+```
+POST /api/auth/set-password
+Content-Type: application/json
+
+{
+  "Email": "company@test.com",
+  "Password": "MySecurePass123!",
+  "ConfirmPassword": "MySecurePass123!"
+}
+```
+
+**Response**: "Password set successfully. You can now login."
+
+### Step 5: Login
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "Email": "company@test.com",
+  "Password": "MySecurePass123!"
+}
+```
+
+**Response**: Complete user information including logo URL
 
 ## Configuration
 
@@ -51,30 +124,50 @@ wwwroot/
 
 ## API Endpoints
 
-### Company Registration (Updated)
+### Company Registration (Updated - No Password)
 ```
 POST /api/auth/register/company
 Content-Type: multipart/form-data
-
-Fields:
-- ArabicName: string (required)
-- EnglishName: string (required)
-- Email: string (required)
-- PhoneNumber: string (optional)
-- WebsiteUrl: string (optional)
-- LogoPath: file (optional)
-- Password: string (required)
-- ConfirmPassword: string (required)
 ```
 
-### Login Response (Enhanced)
+### Employee Registration (Updated - No Password)
+```
+POST /api/auth/register/employee
+Content-Type: application/json
+```
+
+### OTP Generation
+```
+POST /api/auth/generate-otp
+Content-Type: application/json
+```
+
+### OTP Verification
+```
+POST /api/auth/verify-otp
+Content-Type: application/json
+```
+
+### Set Password After OTP (NEW)
+```
+POST /api/auth/set-password
+Content-Type: application/json
+```
+
+### Login
+```
+POST /api/auth/login
+Content-Type: application/json
+```
+
+## Login Response (Enhanced)
 ```json
 {
   "success": true,
   "message": "Login successful",
   "userId": "user-guid",
-  "email": "company@example.com",
-  "userName": "company@example.com",
+  "email": "company@test.com",
+  "userName": "company@test.com",
   "roles": ["Company"],
   "isEmailVerified": true,
   "companyName": "Test Company",
@@ -94,7 +187,7 @@ dotnet build
 dotnet run
 ```
 
-### 2. Test Company Registration with Logo
+### 2. Test Company Registration (No Password)
 ```bash
 curl -X POST "https://localhost:5001/api/auth/register/company" \
   -F "ArabicName=شركة تجريبية" \
@@ -102,29 +195,51 @@ curl -X POST "https://localhost:5001/api/auth/register/company" \
   -F "Email=company@test.com" \
   -F "PhoneNumber=+1234567890" \
   -F "WebsiteUrl=https://testcompany.com" \
-  -F "LogoPath=@/path/to/your/logo.png" \
-  -F "Password=TestPass123!" \
-  -F "ConfirmPassword=TestPass123!"
+  -F "LogoPath=@/path/to/your/logo.png"
 ```
 
-### 3. Verify Image Storage
-- Check `wwwroot/images/company-logos/` directory
-- Verify image file exists with GUID filename
-- Check database for `LogoPath` value
+### 3. Generate OTP
+```bash
+curl -X POST "https://localhost:5001/api/auth/generate-otp" \
+  -H "Content-Type: application/json" \
+  -d '{"Email": "company@test.com"}'
+```
 
-### 4. Test Login to Get Logo URL
+### 4. Verify OTP
+```bash
+curl -X POST "https://localhost:5001/api/auth/verify-otp" \
+  -H "Content-Type: application/json" \
+  -d '{"Email": "company@test.com", "Code": "123456"}'
+```
+
+### 5. Set Password
+```bash
+curl -X POST "https://localhost:5001/api/auth/set-password" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Email": "company@test.com",
+    "Password": "MySecurePass123!",
+    "ConfirmPassword": "MySecurePass123!"
+  }'
+```
+
+### 6. Login
 ```bash
 curl -X POST "https://localhost:5001/api/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
     "Email": "company@test.com",
-    "Password": "TestPass123!"
+    "Password": "MySecurePass123!"
   }'
 ```
 
-### 5. Access Image via URL
-- Use the `companyLogoUrl` from login response
-- Access: `https://localhost:5001/images/company-logos/guid-filename.jpg`
+## Security Benefits of New Flow
+
+1. **Email Verification First**: Ensures user owns the email before setting password
+2. **No Password in Registration**: Reduces risk of password exposure during registration
+3. **Two-Factor Security**: OTP + Password provides better security
+4. **Temporary Accounts**: Users can't login until they verify email and set password
+5. **Password Reset Token**: Uses secure Identity password reset mechanism
 
 ## File Storage Features
 
@@ -187,6 +302,11 @@ public class AzureBlobFileService : IFileService
    - Check connection string
    - Verify database schema
 
+4. **Password setting failures**
+   - Ensure OTP is verified first
+   - Check password requirements (8+ chars, uppercase, lowercase, digit)
+   - Verify user exists and email is verified
+
 ### Debug Information
 - Check application logs for file service errors
 - Verify file paths in database
@@ -199,3 +319,4 @@ public class AzureBlobFileService : IFileService
 - **Backup**: Consider backing up existing logos before migration
 - **Testing**: Test thoroughly in development before production deployment
 - **Rollback**: Migration can be rolled back if needed
+- **New Flow**: Users must follow the new OTP → Password flow

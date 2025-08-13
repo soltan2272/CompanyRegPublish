@@ -13,6 +13,7 @@ namespace CompanyServiceLayer.Interfaces
         Task<AuthResult> RegisterEmployeeAsync(EmployeeRegisterDTO registerDTO);
         Task<AuthResult> GenerateOtpAsync(GenerateOtpDto dto);
         Task<AuthResult> VerifyOtpAsync(VerifyOtpDto dto);
+        Task<AuthResult> SetPasswordAfterOtpAsync(SetPasswordAfterOtpDto dto);
         Task<AuthResult> LoginAsync(LoginDto dto);
     }
 }
